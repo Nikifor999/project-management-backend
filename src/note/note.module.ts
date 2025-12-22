@@ -5,6 +5,7 @@ import { Note, NoteSchema } from './note.schema';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Note.name, schema: NoteSchema }])],
-  providers: [NoteService]
+  providers: [NoteService],
+  exports: [NoteService],
 })
 export class NoteModule { }

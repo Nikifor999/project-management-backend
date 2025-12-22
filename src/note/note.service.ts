@@ -29,4 +29,8 @@ export class NoteService {
         return this.noteModel.findByIdAndDelete(id).exec();
     }
 
+    async removeAllByProjectId(projectId: string): Promise<void> {
+    await this.noteModel.deleteMany({ projectId: projectId });
+  }
+
 }
