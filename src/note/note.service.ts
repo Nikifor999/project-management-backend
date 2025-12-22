@@ -5,6 +5,10 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class NoteService {
+    
+    countByProject(projectId: string): number | PromiseLike<number> {
+       return 0;
+    }
 
     constructor(@InjectModel(Note.name) private noteModel: Model<Note>) { }
 

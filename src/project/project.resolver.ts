@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ResolveField, Parent } from '@nestjs/graphql';
 import { ProjectService } from './project.service';
 import { ProjectType } from './project.type';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
@@ -7,8 +7,9 @@ import { UseGuards } from '@nestjs/common';
 import { Project } from './project.entity';
 import { CreateProjectInput } from './dto/create-project.input';
 import { UpdateProjectInput } from './dto/update-project.input';
+import { NoteGraphQLType } from 'src/note/dto/note.type';
 
-@Resolver()
+@Resolver(() => ProjectType)
 export class ProjectResolver {
 
     constructor(private readonly projectService: ProjectService) { }
@@ -60,5 +61,20 @@ export class ProjectResolver {
         @Args('projectId') projectId: string,
     ) {
         return this.projectService.unarchiveProject(projectId);
+    }
+
+    @ResolveField(() => [NoteGraphQLType], { name: 'notes', nullable: 'itemsAndList' })
+    async notes(@Parent() project: ProjectType) {
+        return this.projectService.getNotes(project.id);
+    }
+
+    @ResolveField(() => Number, {name: 'noteCount'})
+    async noteCount(@Parent() project: ProjectType) {
+        return this.projectService.countNotes(project.id);
+    }
+
+    @ResolveField(() => String, {name: 'ownerName'})
+    async ownerName(@Parent() project: Project, @CurrentUser() user: { userId: string, email: string }) {
+        return user.email;
     }
 }

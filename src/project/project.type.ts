@@ -1,6 +1,6 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { User } from '../user/user.entity'; 
-//import { NoteGraphQLType } from '../notes/dto/note.type'; 
+import { NoteGraphQLType } from 'src/note/dto/note.type';
 
 @ObjectType('Project')
 export class ProjectType {
@@ -24,12 +24,12 @@ export class ProjectType {
   modifiedDate: Date;
 
   
-//   @Field()
-//   ownerName: string;
+  @Field()
+  ownerName: string;
 
-  // notes resolved  (from Mongo)
-/*   @Field(() => [NoteGraphQLType], { nullable: 'itemsAndList' })
-  notes?: any[]; */
+  // notes из Mongo
+  @Field(() => [NoteGraphQLType], { nullable: 'itemsAndList' })
+  notes?: NoteGraphQLType[];
 
   @Field(() => Number)
   noteCount?: number;

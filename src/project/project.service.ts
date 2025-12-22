@@ -85,6 +85,13 @@ export class ProjectService {
         return this.projectRepository.save(project);
     }
 
+    async countNotes(projectId: string): Promise<number> {
+        return this.noteService.countByProject(projectId);
+    }
+
+    async getNotes(projectId: string) {
+        return this.noteService.findByProject(projectId);
+    }
 }
 
 

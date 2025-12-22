@@ -35,6 +35,40 @@ type Mutation {
   updateProject(input: UpdateProjectInput!, projectId: String!): Project!
 }
 
+type Note {
+  attachments: [NoteAttachment]
+  content: String
+  createdAt: DateTime!
+  id: ID!
+  isArchived: Boolean!
+  labels: [String!]!
+  ownerId: String!
+  pinned: Boolean!
+  position: Float!
+  projectId: String!
+  reminderAt: DateTime
+  reminderSent: Boolean!
+  title: String!
+  trashedAt: DateTime
+  updatedAt: DateTime!
+  visibility: NoteVisibility!
+}
+
+type NoteAttachment {
+  id: String!
+  mime: String!
+  name: String!
+  size: Float!
+  url: String!
+}
+
+"""The visibility status of the note"""
+enum NoteVisibility {
+  PRIVATE
+  PUBLIC
+  SHARED
+}
+
 type Project {
   createdDate: DateTime!
   description: String
@@ -43,6 +77,8 @@ type Project {
   modifiedDate: DateTime!
   name: String!
   noteCount: Float!
+  notes: [Note]
+  ownerName: String!
 }
 
 type Query {
