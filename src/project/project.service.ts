@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from './project.entity';
 import { Repository } from 'typeorm';
@@ -14,6 +14,7 @@ export class ProjectService {
         @InjectRepository(Project)
         private readonly projectRepository: Repository<Project>,
 
+        @Inject(forwardRef(() => NoteService))
         private readonly noteService: NoteService,
     ) { }
 

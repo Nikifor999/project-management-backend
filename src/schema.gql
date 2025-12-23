@@ -7,6 +7,25 @@ type AuthResponse {
   refreshToken: String!
 }
 
+input CreateNoteAttachment {
+  mime: String!
+  name: String!
+  noteId: String!
+  size: Int!
+  url: String!
+}
+
+input CreateNoteInput {
+  content: String
+  labels: [String!]
+  pinned: Boolean
+  postion: Float
+  projectId: String!
+  reminderAt: DateTime
+  title: String!
+  visibility: String
+}
+
 input CreateProjectInput {
   description: String
   name: String!
@@ -24,10 +43,14 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Mutation {
+  addAttachment(input: CreateNoteAttachment!): Note!
   archiveProject(projectId: String!): Boolean!
+  createNote(input: CreateNoteInput!): Note!
   createProject(input: CreateProjectInput!): Project!
   logout: Boolean!
   refreshTokens: AuthResponse!
+  removeAttachment(attachmentId: String!, noteId: String!): Note!
+  removeNote(noteId: String!): Boolean!
   removeProject(projectId: String!): Boolean!
   signIn(input: SignInInput!): AuthResponse!
   signUp(input: CreateUserInput!): AuthResponse!
@@ -82,6 +105,8 @@ type Project {
 }
 
 type Query {
+  getProjectsNotes(projectId: String!): [Note!]!
+  getUsersNotes: [Note!]!
   getUsersProjects: [Project!]!
   hello: String!
 }
