@@ -25,6 +25,8 @@ import { dataSourceOptions } from './db/datasource';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
       playground: true,
+      introspection: true,
+      context: ({ req, res }) => ({ req, res }),
     }),
     UserModule,
     ProjectModule,
