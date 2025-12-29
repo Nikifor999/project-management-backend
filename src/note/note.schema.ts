@@ -66,3 +66,6 @@ export class Note {
 }
 
 export const NoteSchema = SchemaFactory.createForClass(Note);
+
+
+NoteSchema.index({ title: 'text', content: 'text' });
