@@ -15,6 +15,8 @@ import { NoteModule } from './note/note.module';
 import { AuthModule } from './auth/auth.module';
 import { SearchModule } from './search/search.module';
 import { dataSourceOptions } from './db/datasource';
+import { CacheModule } from '@nestjs/cache-manager';
+import { RedisConfig } from './config/redis.config';
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { dataSourceOptions } from './db/datasource';
       introspection: true,
       context: ({ req, res }) => ({ req, res }),
     }),
+    CacheModule.registerAsync(RedisConfig),
     UserModule,
     ProjectModule,
     NoteModule,

@@ -17,10 +17,10 @@ export class ProjectType {
   @Field()
   isArchive: boolean;
 
-  @Field()
+  @Field(() => Date)
   createdDate: Date;
 
-  @Field()
+  @Field(() => Date)
   modifiedDate: Date;
 
   

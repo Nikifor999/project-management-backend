@@ -37,19 +37,19 @@ export class NoteGraphQLType {
   @Field()
   isArchived: boolean;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   trashedAt?: Date;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   reminderAt?: Date;
 
   @Field()
   reminderSent: boolean;
 
-  @Field()
+  @Field(() => Date)
   createdAt: Date;
 
-  @Field()
+  @Field(() => Date)
   updatedAt: Date;
 }
 
