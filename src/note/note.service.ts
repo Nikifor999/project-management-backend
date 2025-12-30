@@ -70,7 +70,7 @@ export class NoteService {
         return this.noteModel.find({
             ownerId: userId,
             $text: { $search: query },
-            score: { $meta: "textScore" }
+           // score: { $meta: "textScore" }
         })
             .sort({ score: { $meta: 'textScore' } })
             .limit(10)

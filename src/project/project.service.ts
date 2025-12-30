@@ -40,11 +40,13 @@ export class ProjectService {
 
         if (!cleanQuery) return [];
 
+        const formattedQuery = cleanQuery.split(' ').map(w => `${w}:*`).join(' & ');
+
         return this.projectRepository.createQueryBuilder('p')
             .where('p.user.id = :userId', { userId })
             .andWhere(
                 'p.search_vector @@ plainto_tsquery(:lang, :query)',
-                { lang: 'english', query: cleanQuery }
+                { lang: 'english', query: formattedQuery }
             )
             .orderBy('ts_rank(p.search_vector, plainto_tsquery(:lang, :query))', 'DESC')
             .getMany();
