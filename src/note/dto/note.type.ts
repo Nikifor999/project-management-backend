@@ -46,10 +46,10 @@ export class NoteGraphQLType {
   @Field()
   reminderSent: boolean;
 
-  @Field()
+  @Field({nullable: true})
   createdAt: Date;
 
-  @Field()
+  @Field({nullable: true})
   updatedAt: Date;
 }
 

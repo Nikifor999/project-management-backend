@@ -21,6 +21,15 @@ export class ProjectResolver {
     };
 
     @UseGuards(GqlAccessGuard)
+    @Query(() => ProjectType)
+    getProject(
+        @CurrentUser() user: { userId: string },
+        @Args('projectId') projectId: string
+    ): Promise<Project> {
+        return this.projectService.getProject(projectId, user.userId);
+    };
+
+    @UseGuards(GqlAccessGuard)
     @Mutation(() => ProjectType)
     createProject(@CurrentUser() user: { userId: string },
         @Args('input') input: CreateProjectInput): Promise<Project> {
@@ -47,20 +56,22 @@ export class ProjectResolver {
         return this.projectService.removeProject(projectId, user.userId);
     }
 
-    @Mutation(() => Boolean)
+    @Mutation(() => ProjectType)
     @UseGuards(GqlAccessGuard)
     async archiveProject(
         @Args('projectId') projectId: string,
     ) {
         return this.projectService.archiveProject(projectId);
+        //return true;
     }
 
-    @Mutation(() => Boolean)
+    @Mutation(() => ProjectType)
     @UseGuards(GqlAccessGuard)
     async unarchiveProject(
         @Args('projectId') projectId: string,
     ) {
         return this.projectService.unarchiveProject(projectId);
+        //return true;
     }
 
     @ResolveField(() => [NoteGraphQLType], { name: 'notes', nullable: 'itemsAndList' })

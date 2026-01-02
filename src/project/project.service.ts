@@ -25,6 +25,13 @@ export class ProjectService {
         })
     }
 
+    async getProject(projectId: string, userId: string): Promise<Project> {
+        const project = await this.projectRepository.findOneOrFail({
+            where: { id: projectId, user: { id: userId } }
+        });
+        return project;
+    }
+
     async createProject(userId: string, input: CreateProjectInput): Promise<Project> {
 
         const newProject = this.projectRepository.create({
