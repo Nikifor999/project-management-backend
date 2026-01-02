@@ -66,6 +66,16 @@ export class NoteService {
         return note;
     }
 
+    async searchNotes(userId: string, query: string): Promise<Note[]> {
+        return this.noteModel.find({
+            ownerId: userId,
+            $text: { $search: query },
+        })
+            .sort({ score: { $meta: 'textScore' } })
+            .limit(10)
+            .exec();
+    }
+
     async findByProject(projectId: string): Promise<Note[]> {
         return this.noteModel.find({ projectId }).exec();
     }

@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { NoteService } from './note.service';
-import { NoteAttachmentType, NoteGraphQLType } from './dto/note.type';
+import { NoteGraphQLType } from './dto/note.type';
 import { UseGuards } from '@nestjs/common';
 import { GqlAccessGuard } from 'src/auth/guards/gql-access.guard';
 import { Note } from './note.schema';

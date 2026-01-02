@@ -13,11 +13,15 @@ import { UserModule } from './user/user.module';
 import { ProjectModule } from './project/project.module';
 import { NoteModule } from './note/note.module';
 import { AuthModule } from './auth/auth.module';
+import { SearchModule } from './search/search.module';
+import { dataSourceOptions } from './db/datasource';
+import { CacheModule } from '@nestjs/cache-manager';
+import { RedisConfig } from './config/redis.config';
 
 @Module({
   imports: [
     MongooseModule.forRoot(mongoConfig.uri as string),
-    TypeOrmModule.forRoot(postgresConfig),
+    TypeOrmModule.forRoot(dataSourceOptions),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
@@ -26,12 +30,14 @@ import { AuthModule } from './auth/auth.module';
       introspection: true,
       context: ({ req, res }) => ({ req, res }),
     }),
+    CacheModule.registerAsync(RedisConfig),
     UserModule,
     ProjectModule,
     NoteModule,
     AuthModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService, HelloResolver],
 })
-export class AppModule {}
+export class AppModule { }

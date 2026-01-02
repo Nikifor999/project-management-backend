@@ -42,6 +42,23 @@ export class ProjectService {
         return await this.projectRepository.save(newProject);
     }
 
+    async searchProjects(userId: string, query: string): Promise<Project[]> {
+        const cleanQuery = query.trim();
+
+        if (!cleanQuery) return [];
+
+        const formattedQuery = cleanQuery.split(' ').map(w => `${w}:*`).join(' & ');
+
+        return this.projectRepository.createQueryBuilder('p')
+            .where('p.user.id = :userId', { userId })
+            .andWhere(
+                'p.search_vector @@ plainto_tsquery(:lang, :query)',
+                { lang: 'english', query: formattedQuery }
+            )
+            .orderBy('ts_rank(p.search_vector, plainto_tsquery(:lang, :query))', 'DESC')
+            .getMany();
+    }
+
     async updateProject(userId: string, projectId: string,
         input: UpdateProjectInput): Promise<Project> {
 

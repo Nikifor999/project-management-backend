@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import bcrypt from 'node_modules/bcryptjs';
+import * as bcrypt from 'bcryptjs';
 import { CreateUserInput } from 'src/auth/dto/create-user.input';
 import { User } from 'src/user/user.entity';
 import { IsNull, Repository } from 'typeorm';

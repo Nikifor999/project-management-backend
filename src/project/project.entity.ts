@@ -1,6 +1,7 @@
 import { User } from "src/user/user.entity";
 import {
     Column, CreateDateColumn, Entity,
+    Index,
     ManyToOne, PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
@@ -11,9 +12,11 @@ export class Project {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
+    @Index({ fulltext: true })
     @Column({ length: 255 })
     name: string;
 
+    @Index({ fulltext: true })
     @Column({ type: 'text', nullable: true })
     description?: string;
 
@@ -30,4 +33,11 @@ export class Project {
         onDelete: 'CASCADE',
     })
     user: User;
+
+    @Column({
+        type: 'tsvector', select: false,
+        insert: false, update: false, nullable: true,
+        generatedType: 'STORED', 
+    })
+    search_vector: any;
 }

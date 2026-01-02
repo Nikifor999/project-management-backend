@@ -109,7 +109,10 @@ type Query {
   getUsersNotes: [Note!]!
   getUsersProjects: [Project!]!
   hello: String!
+  search(query: String!): [SearchResult!]!
 }
+
+union SearchResult = Note | Project
 
 input SignInInput {
   email: String!
