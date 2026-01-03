@@ -1,11 +1,12 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
 import { NoteVisibility } from '../note.visibility';
+import { Transform } from 'class-transformer'; 
 
 @InputType()
 export class CreateNoteInput {
 
-    @Field() 
+    @Field()
     @IsNotEmpty()
     @IsUUID()
     projectId: string;
@@ -33,8 +34,9 @@ export class CreateNoteInput {
     @IsNumber()
     postion?: number;
 
-    @Field({ nullable: true })
+    @Field({ nullable: true, defaultValue: false })
     @IsOptional()
     @IsBoolean()
-    pinned?: boolean;
+    @Transform(({ value }) => value ?? false)
+    pinned?: boolean = false;
 }
