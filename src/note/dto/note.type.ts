@@ -25,8 +25,8 @@ export class NoteGraphQLType {
   @Field(() => [String])
   labels: string[];
 
-  @Field()
-  pinned: boolean;
+  @Field({ nullable: true })
+  pinned?: boolean;
 
   @Field()
   position: number;
@@ -46,10 +46,10 @@ export class NoteGraphQLType {
   @Field()
   reminderSent: boolean;
 
-  @Field(() => Date, {nullable: true })
+  @Field(() => Date, { nullable: true })
   createdAt: Date;
 
-  @Field(() => Date, {nullable: true })
+  @Field(() => Date, { nullable: true })
   updatedAt: Date;
 }
 

@@ -44,7 +44,7 @@ scalar DateTime
 
 type Mutation {
   addAttachment(input: CreateNoteAttachment!): Note!
-  archiveProject(projectId: String!): Boolean!
+  archiveProject(projectId: String!): Project!
   createNote(input: CreateNoteInput!): Note!
   createProject(input: CreateProjectInput!): Project!
   logout: Boolean!
@@ -54,14 +54,14 @@ type Mutation {
   removeProject(projectId: String!): Boolean!
   signIn(input: SignInInput!): AuthResponse!
   signUp(input: CreateUserInput!): AuthResponse!
-  unarchiveProject(projectId: String!): Boolean!
+  unarchiveProject(projectId: String!): Project!
   updateProject(input: UpdateProjectInput!, projectId: String!): Project!
 }
 
 type Note {
   attachments: [NoteAttachment]
   content: String
-  createdAt: DateTime!
+  createdAt: DateTime
   id: ID!
   isArchived: Boolean!
   labels: [String!]!
@@ -73,7 +73,7 @@ type Note {
   reminderSent: Boolean!
   title: String!
   trashedAt: DateTime
-  updatedAt: DateTime!
+  updatedAt: DateTime
   visibility: NoteVisibility!
 }
 
@@ -105,6 +105,7 @@ type Project {
 }
 
 type Query {
+  getProject(projectId: String!): Project!
   getProjectsNotes(projectId: String!): [Note!]!
   getUsersNotes: [Note!]!
   getUsersProjects: [Project!]!
