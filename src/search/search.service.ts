@@ -27,6 +27,7 @@ export class SearchService {
         }
 
         console.log(`Cache MISS - going to DB`);
+        // await new Promise(resolve => setTimeout(resolve, 10000));
 
         const [projects, notes] = await Promise.all([
             this.projectService.searchProjects(userId, query),

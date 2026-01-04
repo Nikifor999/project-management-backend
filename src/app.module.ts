@@ -17,6 +17,7 @@ import { SearchModule } from './search/search.module';
 import { dataSourceOptions } from './db/datasource';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisConfig } from './config/redis.config';
+import { BackgroundModule } from './background/background.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { RedisConfig } from './config/redis.config';
     NoteModule,
     AuthModule,
     SearchModule,
+    BackgroundModule,
   ],
   controllers: [AppController],
   providers: [AppService, HelloResolver],

@@ -18,7 +18,7 @@ input CreateNoteAttachment {
 input CreateNoteInput {
   content: String
   labels: [String!]
-  pinned: Boolean
+  pinned: Boolean = false
   postion: Float
   projectId: String!
   reminderAt: DateTime
@@ -66,7 +66,7 @@ type Note {
   isArchived: Boolean!
   labels: [String!]!
   ownerId: String!
-  pinned: Boolean!
+  pinned: Boolean
   position: Float!
   projectId: String!
   reminderAt: DateTime
