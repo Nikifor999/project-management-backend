@@ -18,6 +18,7 @@ import { dataSourceOptions } from './db/datasource';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisConfig } from './config/redis.config';
 import { BackgroundModule } from './background/background.module';
+import { RefreshTokenModule } from './refresh_token/refresh_token.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { BackgroundModule } from './background/background.module';
     AuthModule,
     SearchModule,
     BackgroundModule,
+    RefreshTokenModule,
   ],
   controllers: [AppController],
   providers: [AppService, HelloResolver],

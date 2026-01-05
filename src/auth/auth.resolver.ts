@@ -6,6 +6,9 @@ import { SignInInput } from './dto/sign-in.input';
 import { UseGuards } from '@nestjs/common';
 import { GqlRefreshGuard } from './guards/gql-refresh.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
+import { ChangePasswordResponse } from './dto/change-password.response';
+import { GqlAccessGuard } from './guards/gql-access.guard';
+import { ChangePasswordInput } from './dto/change-password.input';
 
 @Resolver()
 export class AuthResolver {
@@ -17,6 +20,21 @@ export class AuthResolver {
     ): Promise<AuthResponse> {
         return this.authService.registerUser(input);
     }
+
+    @Mutation(() => ChangePasswordResponse)
+    @UseGuards(GqlAccessGuard)
+    async changePassword(
+        @Args('input') input: ChangePasswordInput,
+        @CurrentUser() user: { userId: string }
+    ): Promise<ChangePasswordResponse> {
+
+        await this.authService.changePassword(user.userId, input);
+        return {
+            success: true,
+            message: 'Password has been changed',
+        }
+    }
+
 
     @Mutation(() => AuthResponse)
     async signIn(

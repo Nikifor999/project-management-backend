@@ -7,6 +7,16 @@ type AuthResponse {
   refreshToken: String!
 }
 
+input ChangePasswordInput {
+  newPassword: String!
+  oldPassword: String!
+}
+
+type ChangePasswordResponse {
+  message: String
+  success: Boolean!
+}
+
 input CreateNoteAttachment {
   mime: String!
   name: String!
@@ -45,6 +55,7 @@ scalar DateTime
 type Mutation {
   addAttachment(input: CreateNoteAttachment!): Note!
   archiveProject(projectId: String!): Project!
+  changePassword(input: ChangePasswordInput!): ChangePasswordResponse!
   createNote(input: CreateNoteInput!): Note!
   createProject(input: CreateProjectInput!): Project!
   logout: Boolean!
@@ -107,6 +118,7 @@ type Project {
 type Query {
   getProject(projectId: String!): Project!
   getProjectsNotes(projectId: String!): [Note!]!
+  getUser: User!
   getUsersNotes: [Note!]!
   getUsersProjects: [Project!]!
   hello: String!
@@ -123,4 +135,12 @@ input SignInInput {
 input UpdateProjectInput {
   description: String
   name: String
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  id: ID!
+  name: String!
+  updatedAt: DateTime!
 }

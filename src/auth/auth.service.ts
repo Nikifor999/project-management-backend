@@ -4,39 +4,41 @@ import * as bcrypt from 'bcryptjs';
 import { CreateUserInput } from 'src/auth/dto/create-user.input';
 import { User } from 'src/user/user.entity';
 import { IsNull, Repository } from 'typeorm';
-import { RefreshToken } from './entities/refresh-token.entity';
+import { RefreshToken } from '../refresh_token/refresh_token.entity';
 import { JwtService } from '@nestjs/jwt';
+import { ChangePasswordInput } from './dto/change-password.input';
+import { ChangePasswordResponse } from './dto/change-password.response';
+import { UserService } from 'src/user/user.service';
+import { RefreshTokenService } from 'src/refresh_token/refresh_token.service';
 
 @Injectable()
 export class AuthService {
 
     constructor(
-        @InjectRepository(User) private userRepository: Repository<User>,
-        @InjectRepository(RefreshToken) private refTokenRepository: Repository<RefreshToken>,
         private readonly jwtService: JwtService,
+        private readonly userService: UserService,
+        private readonly refreshTokenService: RefreshTokenService,
     ) { }
+
+    private SALT_ROUNDS = 10;
 
     async registerUser(input: CreateUserInput) {
 
-        const existingUser = await this.userRepository.findOne({
-            where: { email: input.email },
-        })
+        const existingUser = await this.userService.findByEmail(input.email);
 
         if (existingUser) {
             throw new BadRequestException('Email already in use');
         }
 
-        const hashedPassword = await bcrypt.hash(input.password, 10);
+        const hashedPassword = await bcrypt.hash(input.password, this.SALT_ROUNDS);
 
-        const newUser = this.userRepository.create({
+        const newSavedUser = await this.userService.create({
             ...input, password: hashedPassword
         });
 
-        const savedUser = await this.userRepository.save(newUser);
+        const { accessToken, refreshToken } = await this.generateTokens(newSavedUser);
 
-        const { accessToken, refreshToken } = await this.generateTokens(savedUser);
-
-        await this.saveRefreshToken(savedUser, refreshToken);
+        await this.saveRefreshToken(newSavedUser, refreshToken);
 
         return {
             accessToken,
@@ -45,9 +47,42 @@ export class AuthService {
 
     }
 
+    async changePassword(userId: string, input: ChangePasswordInput): Promise<void> {
+
+        const user = await this.userService.findById(userId);
+
+        const { oldPassword, newPassword } = input;
+
+        if (!user.password) {
+            throw new BadRequestException('Password change is not available for this account');
+        }
+
+        const isOldPasswordValid = await bcrypt.compare(
+            oldPassword,
+            user.password,
+        );
+
+        if (!isOldPasswordValid) {
+            throw new BadRequestException('Old password is wrong');
+        }
+
+        const isSamePassword = await bcrypt.compare(
+            newPassword,
+            user.password,
+        );
+
+        if (isSamePassword) {
+            throw new BadRequestException('Password must be different from old password');
+        }
+
+        user.password = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
+
+        await this.userService.save(user);
+        await this.refreshTokenService.revokeAllForUser(user.id);
+    }
 
     async signIn(email: string, password: string) {
-        const user: User | null = await this.userRepository.findOne({ where: { email } });
+        const user = await this.userService.findByEmail(email);
 
         if (!user) {
             throw new ForbiddenException('Invalid credentials');
@@ -75,7 +110,7 @@ export class AuthService {
     }
 
     async refreshTokens(userId: string, incomingRefreshToken: string) {
-        const tokens = await this.refTokenRepository.find({
+        const tokens = await this.refreshTokenService.find({
             where: {
                 user: { id: userId },
                 revokedAt: IsNull(),
@@ -97,7 +132,7 @@ export class AuthService {
         }
 
         matchedToken.revokedAt = new Date();
-        await this.refTokenRepository.save(matchedToken);
+        await this.refreshTokenService.save(matchedToken)
 
         const { accessToken, refreshToken } =
             await this.generateTokens(matchedToken.user);
@@ -111,7 +146,7 @@ export class AuthService {
     }
 
     async logout(userId: string, incomingRefreshToken: string): Promise<void> {
-        const tokens = await this.refTokenRepository.find({
+        const tokens = await this.refreshTokenService.find({
             where: {
                 user: { id: userId },
                 revokedAt: IsNull(),
@@ -129,7 +164,7 @@ export class AuthService {
         }
 
         matchedToken.revokedAt = new Date();
-        await this.refTokenRepository.save(matchedToken);
+        await this.refreshTokenService.save(matchedToken);
     }
 
 
@@ -159,13 +194,13 @@ export class AuthService {
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 7);
 
-        const entity = this.refTokenRepository.create({
+        const entity = this.refreshTokenService.create({
             user,
             tokenHash,
             expiresAt,
         });
 
-        return this.refTokenRepository.save(entity);
+        return this.refreshTokenService.save(entity);
     }
 
     private async findMatchingToken(
