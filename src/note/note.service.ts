@@ -1,10 +1,11 @@
-import { ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, forwardRef, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Note } from './note.schema';
 import { Model } from 'mongoose';
 import { CreateNoteInput } from './dto/create-note.input';
 import { ProjectService } from 'src/project/project.service';
 import { CreateNoteAttachmentInput } from './dto/create-attachment.input';
+import { UpdateNoteInput } from './dto/update-note.input';
 
 @Injectable()
 export class NoteService {
@@ -84,8 +85,19 @@ export class NoteService {
         return this.noteModel.find({ ownerId }).exec();
     }
 
-    async update(id: string, data: Partial<Note>): Promise<Note | null> {
-        return this.noteModel.findByIdAndUpdate(id, data, { new: true }).exec();
+    async update(userId: string, noteId: string,
+        input: UpdateNoteInput): Promise<Note> {
+
+        const note = await this.noteModel.findById(noteId);
+        if (!note) {
+            throw new NotFoundException("Notes not found");
+        }
+        if (note.ownerId && note.ownerId != userId) {
+            throw new UnauthorizedException("Not your note");
+        }
+
+        note.set(input);
+        return note.save();
     }
 
     async delete(id: string): Promise<Note | null> {
@@ -101,7 +113,5 @@ export class NoteService {
     }
 
 }
-function uuidv4() {
-    throw new Error('Function not implemented.');
-}
+
 

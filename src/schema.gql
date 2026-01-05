@@ -66,7 +66,9 @@ type Mutation {
   signIn(input: SignInInput!): AuthResponse!
   signUp(input: CreateUserInput!): AuthResponse!
   unarchiveProject(projectId: String!): Project!
+  updateNote(input: UpdateNoteInput!, noteId: String!): Note!
   updateProject(input: UpdateProjectInput!, projectId: String!): Project!
+  updateUser(input: UpdateUserInput!): User!
 }
 
 type Note {
@@ -132,8 +134,21 @@ input SignInInput {
   password: String!
 }
 
+input UpdateNoteInput {
+  content: String
+  labels: [String!]
+  pinned: Boolean = false
+  reminderAt: DateTime
+  title: String
+  visibility: String
+}
+
 input UpdateProjectInput {
   description: String
+  name: String
+}
+
+input UpdateUserInput {
   name: String
 }
 
