@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RefreshToken } from './refresh_token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOperator, Repository } from 'typeorm';
+import { EntityManager, FindOperator, Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
 
 @Injectable()
@@ -12,8 +12,12 @@ export class RefreshTokenService {
         private readonly refTokenRep: Repository<RefreshToken>,
     ) { }
 
-    async revokeAllForUser(userId: string): Promise<void> {
-        await this.refTokenRep.delete({ user: { id: userId } });
+    async revokeAllForUser(userId: string, manager?: EntityManager): Promise<void> {
+        if (manager) {
+            await manager.delete(RefreshToken, { user: { id: userId } });
+        } else {
+            await this.refTokenRep.delete({ user: { id: userId } });
+        }
     }
 
     async find(params: Object) {

@@ -14,7 +14,6 @@ import { ProjectModule } from './project/project.module';
 import { NoteModule } from './note/note.module';
 import { AuthModule } from './auth/auth.module';
 import { SearchModule } from './search/search.module';
-import { dataSourceOptions } from './db/datasource';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisConfig } from './config/redis.config';
 import { BackgroundModule } from './background/background.module';
@@ -23,7 +22,7 @@ import { RefreshTokenModule } from './refresh_token/refresh_token.module';
 @Module({
   imports: [
     MongooseModule.forRoot(mongoConfig.uri as string),
-    TypeOrmModule.forRoot(dataSourceOptions),
+    TypeOrmModule.forRoot(postgresConfig),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),

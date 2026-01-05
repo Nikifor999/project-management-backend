@@ -1,13 +1,11 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserInput } from 'src/auth/dto/create-user.input';
 import { User } from 'src/user/user.entity';
-import { IsNull, Repository } from 'typeorm';
+import { DataSource, IsNull } from 'typeorm';
 import { RefreshToken } from '../refresh_token/refresh_token.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ChangePasswordInput } from './dto/change-password.input';
-import { ChangePasswordResponse } from './dto/change-password.response';
 import { UserService } from 'src/user/user.service';
 import { RefreshTokenService } from 'src/refresh_token/refresh_token.service';
 
@@ -18,9 +16,10 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly userService: UserService,
         private readonly refreshTokenService: RefreshTokenService,
+        private readonly dataSource: DataSource,
     ) { }
 
-    private SALT_ROUNDS = 10;
+    private readonly SALT_ROUNDS = 10;
 
     async registerUser(input: CreateUserInput) {
 
@@ -77,8 +76,13 @@ export class AuthService {
 
         user.password = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
 
-        await this.userService.save(user);
-        await this.refreshTokenService.revokeAllForUser(user.id);
+        await this.dataSource.manager.transaction(
+            async (transactionalEntityManager) => {
+                await transactionalEntityManager.save(user);
+                await this.refreshTokenService
+                    .revokeAllForUser(user.id, transactionalEntityManager);
+            }
+        );
     }
 
     async signIn(email: string, password: string) {
