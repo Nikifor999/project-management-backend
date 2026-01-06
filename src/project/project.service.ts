@@ -47,7 +47,10 @@ export class ProjectService {
 
         if (!cleanQuery) return [];
 
-        const formattedQuery = cleanQuery.split(' ').map(w => `${w}:*`).join(' & ');
+        const formattedQuery = cleanQuery
+            .split(/\s+/) // Разделяет по одному или нескольким пробелам
+            .map(w => `${w}:*`)
+            .join(' & ');
 
         return this.projectRepository.createQueryBuilder('p')
             .where('p.user.id = :userId', { userId })
