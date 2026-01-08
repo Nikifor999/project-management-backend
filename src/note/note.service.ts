@@ -21,9 +21,7 @@ export class NoteService {
     }
 
     async removeNote(noteId: string, userId: string) {
-
-        const note = await this.assertUserNoteOwnership(noteId, userId);
-
+        await this.assertUserNoteOwnership(noteId, userId);
         await this.noteModel.findByIdAndDelete(noteId).exec();
         return true;
     }
@@ -88,9 +86,9 @@ export class NoteService {
     async update(userId: string, noteId: string,
         input: UpdateNoteInput): Promise<Note> {
 
-        const note = await this.noteModel.findById(noteId);
+        const note = await this.noteModel.findById(noteId).exec();
         if (!note) {
-            throw new NotFoundException("Notes not found");
+            throw new NotFoundException("Note's not found");
         }
         if (note.ownerId && note.ownerId != userId) {
             throw new UnauthorizedException("Not your note");

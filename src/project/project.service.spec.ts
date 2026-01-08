@@ -5,6 +5,7 @@ import { Project } from './project.entity';
 import { NoteService } from 'src/note/note.service';
 import { User } from 'src/user/user.entity';
 import { Q } from 'node_modules/vitest/dist/chunks/reporters.d.Rsi0PyxX';
+import { ForbiddenException } from '@nestjs/common';
 
 /* to run this specific file copy&paste 
    npx vitest src/project/project.service.spec.ts --ui --coverage
@@ -12,6 +13,7 @@ import { Q } from 'node_modules/vitest/dist/chunks/reporters.d.Rsi0PyxX';
 
 describe('ProjectService', () => {
   let service: ProjectService;
+  let existingProject: any;
 
   const mockQueryBuilder = {
     where: vi.fn().mockReturnThis(),      // Returns itself to allow .andWhere()
@@ -41,6 +43,14 @@ describe('ProjectService', () => {
   };
 
   beforeEach(async () => {
+
+    existingProject = {
+      id: projectId,
+      name: "Old Name",
+      description: "Old Desc",
+      user: { id: userId }
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [ProjectService,
         {
@@ -182,6 +192,76 @@ describe('ProjectService', () => {
       );
     })
   });
+
+  describe("updateProject", () => {
+    const input = { name: "New Name", description: "new description" };
+
+
+    it("should update the project", async () => {
+      mockRepository.findOneOrFail.mockResolvedValue(existingProject);
+      mockRepository.save.mockImplementation(entity => Promise.resolve(entity));
+
+      const result = await service.updateProject(userId, projectId, input);
+
+      expect(result.name).toEqual(input.name);
+      expect(result.description).toEqual(input.description);
+
+      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: projectId },
+        relations: ['user']
+      });
+      expect(mockRepository.save).toHaveBeenCalledOnce();
+    })
+
+    it("should perform a partial update (only update provided fields)", async () => {
+      // Arrange
+      const partialInput = { name: "Updated Only Name" };
+
+      mockRepository.findOneOrFail.mockResolvedValue(existingProject);
+      mockRepository.save.mockImplementation(entity => Promise.resolve(entity));
+
+      // Act
+      const result = await service.updateProject(userId, projectId, partialInput as any);
+
+      // Assert
+      expect(result.name).toEqual("Updated Only Name");
+      expect(result.description).toEqual("Old Desc");
+
+      expect(mockRepository.save).toHaveBeenCalledWith(expect.objectContaining({
+        name: "Updated Only Name",
+        description: "Old Desc"
+      }));
+    });
+
+    it("should throw an error when project doesn't have user", async () => {
+      const projectWithoutUser = { id: projectId, name: "name", user: null };
+      mockRepository.findOneOrFail.mockResolvedValue(projectWithoutUser);
+
+      await expect(service.updateProject(userId, projectId, input))
+        .rejects.toThrow('Project has no owner');
+
+      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: projectId },
+        relations: ['user']
+      });
+      expect(mockRepository.save).not.toHaveBeenCalled();
+    })
+
+    it("should throw an error when user isn/t the owner of the project", async () => {
+      const message = "You are not the owner of this project";
+      const notUsersProject = { id: projectId, name: "name", user: { id: "randomId" } };
+      mockRepository.findOneOrFail.mockResolvedValue(notUsersProject);
+
+      await expect(service.updateProject(userId, projectId, input))
+        .rejects.toThrow(message);
+
+      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: projectId },
+        relations: ['user']
+      });
+      expect(mockRepository.save).not.toHaveBeenCalled();
+    })
+  })
 
 })
 
