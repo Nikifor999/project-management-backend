@@ -79,13 +79,25 @@ export class ProjectResolver {
         return this.projectService.getNotes(project.id);
     }
 
-    @ResolveField(() => Number, {name: 'noteCount'})
+    @ResolveField(() => Number, { name: 'noteCount' })
     async noteCount(@Parent() project: ProjectType) {
         return this.projectService.countNotes(project.id);
     }
 
-    @ResolveField(() => String, {name: 'ownerName'})
+    @ResolveField(() => String, { name: 'ownerName' })
     async ownerName(@Parent() project: Project, @CurrentUser() user: { userId: string, email: string }) {
         return user.email;
+    }
+
+    @ResolveField(() => Date)
+    modifiedDate(@Parent() project: Project) {
+        // Если пришло из БД - это Date. Если из Redis - это строка.
+        // new Date() отлично переваривает и то, и другое.
+        return new Date(project.modifiedDate);
+    }
+
+    @ResolveField(() => Date)
+    createdDate(@Parent() project: Project) {
+        return new Date(project.createdDate);
     }
 }

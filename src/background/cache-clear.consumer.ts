@@ -18,7 +18,7 @@ export class CacheClearConsumer {
     if (body.action === 'CLEAR_ALL_CACHE') {
         console.warn('Clearing REDIS cache...');
         
-        await this.cacheManager.clear();
+        await this.cacheManager.reset();
         
         console.log('Cache successfully cleared!');
     }

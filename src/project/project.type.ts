@@ -22,7 +22,6 @@ export class ProjectType {
 
   @Field(() => Date)
   modifiedDate: Date;
-
   
   @Field()
   ownerName: string;

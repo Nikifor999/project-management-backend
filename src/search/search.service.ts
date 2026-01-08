@@ -38,7 +38,7 @@ export class SearchService {
 
         if (result.length > 0) {
             console.log(`Saving to Redis`);
-            await this.cacheManager.set(cacheKey, result, 2 * 60 * 1000);
+            await this.cacheManager.set(cacheKey, result, 2 * 60 * 10000);
         }
         return result;
     }
