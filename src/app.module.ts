@@ -29,6 +29,7 @@ import { RefreshTokenModule } from './refresh_token/refresh_token.module';
       sortSchema: true,
       playground: true,
       introspection: true,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       context: ({ req, res }) => ({ req, res }),
     }),
     CacheModule.registerAsync(RedisConfig),
@@ -43,4 +44,4 @@ import { RefreshTokenModule } from './refresh_token/refresh_token.module';
   controllers: [AppController],
   providers: [AppService, HelloResolver],
 })
-export class AppModule { }
+export class AppModule {}
